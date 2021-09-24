@@ -42,6 +42,17 @@ export default io => {
         answer: data.answer
       });
     });
+
+
+    socket.on("candidate", data => {
+      socket.to(data.to).emit("candidate", {
+        socket: socket.id,
+        candidate: data.candidate
+      });
+    });
+
+
+
   });
 
 
