@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node -r esm ./src/index.js",
     "dev": "nodemon --watch 'src/**/*.js' --exec 'node' -r esm ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "fe": "git add public && git commit --amend && git push heroku master --force"
   },
   "author": "",
   "license": "ISC",
