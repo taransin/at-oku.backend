@@ -2,27 +2,29 @@ let activeSockets = [];
 
 export default io => {
   io.on("connection", socket => {
+    if (!socket.handshake.query.username) {
+      console.warn('Someone is trying to connect without a username!!!');
+      return;
+    }
     const existingSocket = activeSockets.find(
-      existingSocket => existingSocket === socket.id
+      existingSocket => existingSocket.id === socket.id
     );
 
     if (!existingSocket) {
-      activeSockets.push(socket.id);
+      activeSockets.push({id: socket.id, username: socket.handshake.query.username });
 
       socket.emit("update-user-list", {
-        users: activeSockets.filter(
-          existingSocket => existingSocket !== socket.id
-        )
+        users: activeSockets
+          .filter(existingSocket => existingSocket.id !== socket.id)
       });
 
       socket.broadcast.emit("update-user-list", {
-        users: [socket.id]
+        users: [{id: socket.id, username: socket.handshake.query.username }]
       });
     }
-
     socket.on("disconnect", () => {
       activeSockets = activeSockets.filter(
-        existingSocket => existingSocket !== socket.id
+        existingSocket => existingSocket.id !== socket.id
       );
       socket.broadcast.emit("remove-user", {
         socketId: socket.id

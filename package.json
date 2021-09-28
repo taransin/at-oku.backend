@@ -1,11 +1,11 @@
 {
-  "name": "videochat.backend",
+  "name": "at-oku.backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node -r esm ./src/index.js",
-    "dev": "nodemon --watch 'src/**/*.js' --exec 'node' -r esm ./src/index.js",
+    "dev": "NODE_ENV=development nodemon --watch 'src/**/*.js' --exec 'node' -r esm ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "fe": "git add public && git commit --amend && git push heroku master --force"
   },

@@ -8,6 +8,7 @@ import socketHandler from './socketHandler'
 const app = express();
 const httpServer = http.createServer(app);
 const frontendOrigin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://at-oku.netlify.app'
+
 const io = socketIO(httpServer, {
   cors: {
     origin: frontendOrigin,
