@@ -1,12 +1,13 @@
 {
-  "name": "videochat.backend",
+  "name": "at-oku.backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node -r esm index.js",
-    "dev": "nodemon --watch 'src/**/*.js' --exec 'node' -r esm ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node -r esm ./src/index.js",
+    "dev": "NODE_ENV=development nodemon --watch 'src/**/*.js' --exec 'node' -r esm ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "fe": "git add public && git commit --amend && git push heroku master --force"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +18,11 @@
     "socket.io": "^4.2.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.12",
+    "prettier": "^2.4.1"
   },
   "engines": {
     "node": "14.x"
