@@ -5,7 +5,10 @@ import Rooms from '../models/Rooms';
 
 export default io => {
   io.on('connection', socket => {
-    Users.login(socket);
+    const loginError = Users.login(socket);
+    if (loginError) {
+      return socket.emit('login-failed', loginError);
+    }
     socket.on('disconnect', () => {
       Users.logout(socket);
       Rooms.leaveAllRooms(io, socket);
