@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./",
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "strict": true,
+    "sourceMap": true,
+    "baseUrl": "./src/",
+    "noImplicitAny": false,
+    "paths": {
+      "*": [
+          "node_modules/"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
