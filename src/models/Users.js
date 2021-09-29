@@ -28,4 +28,6 @@ const logout = socket => {
   });
 };
 
-export default { login, logout };
+const getUser = id => users.find(user => user.id === id);
+
+export default { login, logout, getUser };
