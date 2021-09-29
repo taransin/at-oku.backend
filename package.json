@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node -r esm ./build/src/index.js",
-    "dev": "NODE_ENV=development nodemon ./src/index.ts",
+    "dev": "nodemon -r dotenv/config ./src/index.ts",
     "build": "tsc",
     "watch-node": "nodemon ./build/src/index.js"
   },
@@ -23,6 +23,7 @@
     "@types/node": "^16.10.2",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
+    "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
