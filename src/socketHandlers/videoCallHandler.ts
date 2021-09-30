@@ -1,4 +1,7 @@
-export default socket => {
+import { Socket } from "socket.io";
+
+
+export default (socket: Socket) => {
   socket.on('call-user', data => {
     socket.to(data.to).emit('call-made', {
       offer: data.offer,
