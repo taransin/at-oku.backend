@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { Server } from "socket.io";
+import Turn from 'node-turn';
 import socketHandler from './socketHandlers';
 import controllers from './controllers';
 const app = express();
@@ -21,3 +22,13 @@ httpServer.listen(process.env.PORT || 4000, () => {
 });
 
 socketHandler(io);
+
+const server = new Turn({
+  // set options
+  authMech: 'long-term',
+  credentials: {
+    username: "password"
+  },
+  debugLevel: 'ALL'
+});
+server.start();
