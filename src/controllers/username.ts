@@ -1,10 +1,9 @@
-import express from 'express';
+import { Request, Response } from 'express';
 import Users from '../models/Users';
-const router = express.Router();
 
-router.get('/check/:username', (req, res) => {
+const check = (req: Request, res: Response): void => {
   const user = Users.getByUsername(req.params.username);
   res.json({ used: !!user });
-});
+}
 
-export default router;
+export default { check }
