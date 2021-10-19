@@ -1,5 +1,4 @@
 import videoCallHandler from './videoCallHandler';
-import roomHandler from './roomHandler';
 import Users from '../models/Users';
 import Rooms from '../models/Rooms';
 import { Server, Socket } from "socket.io";
@@ -13,9 +12,8 @@ export default (io: Server) => {
     }
     socket.on('disconnect', () => {
       Users.logout(socket);
-      Rooms.leaveAllRooms(io, socket);
+      Rooms.leaveAllRooms(io, socket.id);
     });
     videoCallHandler(socket);
-    roomHandler(io, socket);
   });
 };

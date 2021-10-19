@@ -4,7 +4,7 @@ import Users, { User } from './Users';
 type Message = {
   message: string,
   sender: string,
-
+  isSystem: boolean
 }
 type Room = {
   name: string,
@@ -14,82 +14,72 @@ type Room = {
 }
 
 const rooms: Room[] = [];
-type createRoomDTO = {
-  name: string,
-  password: string,
-}
-const create = (io: Server, socket: Socket, { name, password = '' }: createRoomDTO): void => {
+
+const create = (io: Server, userId: string, name: string, password = ''): { messages: Message[]; users: User[]; } => {
   rooms.push({ name, password, users: [], messages: [] });
-  join(io, socket, name, password);
-  io.send(
-    'update-rooms-list',
-    rooms.map(room => ({ name: room.name, hasPassword: !!room.password })),
-  );
+  io.send('update-rooms-list', rooms.map(room => ({ name: room.name, hasPassword: !!room.password })));
+  return join(io, userId, name, password);
 };
 
-const join = (io: Server, socket: Socket, name: string, password = ''): void => {
+const join = (io: Server, userId: string,  name: string, password = ''): { messages: Message[]; users: User[]; } => {
   const room = rooms.find(room => room.name === name);
   if (!room) {
-    console.error('trying to join an unknown room!!');
-    socket.emit('join-room-failed', { error: `Room ${name} does not exist` });
-    return
+    console.error('Rooms/join: trying to join an unknown room!!');
+    throw new Error(`Room ${name} does not exist`)
   }
   if (room.password !== password) {
     console.warn('Rooms/join: trying to join room with a wrong password!!');
-    socket.emit('join-room-failed', { error: 'Wrong password' });
-    return
+    throw new Error('Wrong password')
   }
-  const user = Users.getUser(socket.id);
+  const user = Users.getUser(userId);
   if (!user) {
     console.warn('Rooms/join: a ghost user is trying to join room!!');
-    socket.emit('join-room-failed', { error: 'Uhm... refresh the page' });
-    return
+    throw new Error('Uhm... refresh the page')
   }
-  addMessage(io, name, 'System', `${user.username} joined the room`);
+  addMessage(io, name, 'System', `${user.username} joined the room`, true);
   room.users.push(user);
-  socket.emit('room-joined', { messages: room.messages.slice(-10), users: room.users });
   io.to(name).emit('user-room-user-list', { users: room.users });
-  socket.join(name);
+  io.in(userId).socketsJoin(name)
+  return { messages: room.messages.slice(-10), users: room.users }
 };
 
-const leave = (io: Server, socket: Socket, name: string): void => {
+const leave = (io: Server, userId: string, name: string): void => {
   const room = getRoom(name);
   if (!room) {
     console.warn('Rooms/leave: an user is lost in a room that does not exist');
-    socket.emit('leave-room-failed', { error: `The room ${name} does not exist anymore` });
-    return;
+    throw new Error(`The room ${name} does not exist anymore`);
   }
-  const user = Users.getUser(socket.id);
+  const user = Users.getUser(userId);
   if (!user) {
     console.warn('Rooms/leave: a ghost user is trying to leave the room!!');
-    socket.emit('leave-room-failed', { error: 'Uhm... refresh the page' });
-    return
+    throw new Error('Uhm... refresh the page');
   }
-  room.users = room.users.filter(user => user.id !== socket.id);
-  socket.leave(name);
+  room.users = room.users.filter(user => user.id !== userId);
+  io.in(userId).socketsLeave(name);
   io.to(name).emit('user-room-user-list', { users: room.users });
-  addMessage(io, name, 'System', `${user.username} joined the room`);
+  addMessage(io, name, 'System', `${user.username} joined the room`, true);
 };
 
-const leaveAllRooms = (io: Server, socket: Socket): void => {
+const leaveAllRooms = (io: Server, userId: string): void => {
   for (const room of rooms) {
-    const user = room.users.find(user => user.id === socket.id);
+    const user = room.users.find(user => user.id === userId);
     if (user) {
-      leave(io, socket, room.name);
+      leave(io, userId, room.name);
     }
   }
 };
 
 const getRoom = (name: string) => rooms.find(room => room.name === name);
 
-const addMessage = (io: Server, roomName: string, sender: string, message: string): void => {
+const addMessage = (io: Server, roomName: string, sender: string, message: string, isSystem: boolean): void => {
   const room = getRoom(roomName);
   if (!room) {
     console.warn('Rooms/addMessage: Someone is interacting in a room that does not exist anymore')
-    return;
+    throw new Error(`Room ${roomName} does not exist anymore`)
   }
-  room.messages.push({ sender, message });
-  io.to(roomName).emit('new-message', { sender, message });
+  const msg: Message = { sender, message, isSystem }
+  room.messages.push(msg);
+  io.to(roomName).emit('new-message', msg);
 };
 
 export default { create, join, leave, leaveAllRooms, addMessage };
